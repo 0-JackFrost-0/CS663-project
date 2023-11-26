@@ -1,8 +1,7 @@
 clear;
+dataDir = '../data/';
 
-dataDir = '../Data';
-
-resultsDir = 'results/';
+resultsDir = '../results/';
 % mkdir(resultsDir);
 
 inFile = fullfile(dataDir, 'guitar.avi');

@@ -6,4 +6,3 @@
 addpath(fullfile(pwd, 'matlabPyrTools'));
 addpath(fullfile(pwd, 'matlabPyrTools', 'MEX'));
 addpath(fullfile(pwd, 'pyrToolsExt'));
-
