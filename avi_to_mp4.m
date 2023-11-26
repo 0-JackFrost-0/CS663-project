@@ -1,12 +1,12 @@
 % Specify the input AVI file
-inputAVIFile = 'data/throat.avi';
+inputAVIFile = './p.avi';
 
 % Create a VideoReader object for the input AVI file
 inputVideo = VideoReader(inputAVIFile);
 
 % Create a VideoWriter object for the output MP4 file
 % outputMP4File = 'ResultsSIGGRAPH2013/output.mp4';
-outputMP4File = 'data/output.mp4';
+outputMP4File = './r.mp4';
 outputVideo = VideoWriter(outputMP4File, 'MPEG-4');
 
 % Set properties of the VideoWriter object

@@ -56,7 +56,6 @@ if ( (size(filt2,1) > 1) & (size(filt2,2) > 1) )
 else
   filt2 = filt2(:);
 end
-
 max_ht = 1 + maxPyrHt(im_sz, max(size(filt1,1), size(filt2,1)));
 if ( (exist('ht') ~= 1) | (ht == 'auto') )
   ht = max_ht;

@@ -1,4 +1,4 @@
-function [laplacian_pyramid, riesz_x, riesz_y] = ComputeRieszPyramid(grayscale_frame)
+function [laplacian_pyrm, riesz_x, riesz_y,number_of_levels] = ComputeRieszPyramid(grayscale_frame)
 % Compute Riesz pyramid of two dimensional frame. This is done by first
 % computing the laplacian pyramid of the frame and then computing the
 % approximate Riesz transform of each level that is not the lowpass
@@ -7,10 +7,26 @@ function [laplacian_pyramid, riesz_x, riesz_y] = ComputeRieszPyramid(grayscale_f
 % i and j components of Riesz pyramid coefficients.
 
 [laplacian_pyramid, ~] = buildLpyr(grayscale_frame);
-number_of_levels = numel(laplacian_pyramid)-1;
+
+f1= size(grayscale_frame,1);
+f2= size(grayscale_frame,2);
+laplacian_p_size= size(laplacian_pyramid,1);
+i=1;
+j=1;
+l=f1*f2;
+while f1>2 && f2>2
+    laplacian_pyrm{i} = reshape(laplacian_pyramid(j:l),[f1,f2]);
+    laplacian_p_size = laplacian_p_size - f1*f2;
+    i = i+1;
+    j=l+1;
+    f1 = (ceil(f1/2));
+    f2 = (ceil(f2/2));
+    l = l + f1*f2; 
+end
+
+number_of_levels = i-2;
 % The approximate Riesz transform of each level that is not the
 % low pass residual is computed.
-
 kernel_x = [0.0, 0.0, 0.0;
             0.5, 0.0, -0.5;
             0.0, 0.0, 0.0];
@@ -18,8 +34,8 @@ kernel_y = [0.0, 0.5, 0.0;
             0.0, 0.0, 0.0;
             0.0, -0.5, 0.0];
 for k = 1:number_of_levels
-    riesz_x{k} = conv2(laplacian_pyramid(k), kernel_x);
-    riesz_y{k} = conv2(laplacian_pyramid(k), kernel_y);
+    riesz_x{k} = conv2(cell2mat(laplacian_pyrm(k)), kernel_x,"same");
+    riesz_y{k} = conv2(cell2mat(laplacian_pyrm(k)), kernel_y,"same");
 end
 
 end

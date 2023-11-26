@@ -10,4 +10,4 @@ loCutoff = 72;
 hiCutoff = 92;
 alpha = 25;
 
-phaseAmplify(inFile, alpha, loCutoff, hiCutoff, samplingRate, resultsDir);
+[res,framerate]=phaseAmplify(inFile, alpha, loCutoff, hiCutoff, samplingRate, resultsDir);
