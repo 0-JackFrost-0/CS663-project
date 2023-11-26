@@ -2,7 +2,7 @@ function [outres,FrameRate] = phaseAmplify(vidFile, magPhase, fl, fh, fs, outDir
     ny_freq = fs/2;
     [B,A]= butter(1, [fl/ny_freq, fh/ny_freq], 'bandpass');    
     sigma = 2;
-    gaussian_kernel = fspecial('gaussian', ceil(4*sigma), sigma);
+    gaussian_kernel = fspecial('gaussian', ceil(3), sigma);
 
     vr = VideoReader(vidFile);
     [~, writeTag, ~] = fileparts(vidFile);
@@ -41,23 +41,25 @@ function [outres,FrameRate] = phaseAmplify(vidFile, magPhase, fl, fh, fs, outDir
             phase_cos{k}= cell2mat(phase_cos(k)) + phase_difference_cos;
             phase_sin{k} = cell2mat(phase_sin(k)) + phase_difference_sin;
             [phase_filter_cos,register0_cos{k},register1_cos{k}] = ...
-                IIR_temp(B,A,phase_cos{k},register0_cos{k},register1_cos{k});
+                IIR_temp(B,A,cell2mat(phase_cos(k)),cell2mat(register0_cos(k)),cell2mat(register1_cos(k)));
             [phase_filter_sin,register0_sin{k},register1_sin{k}] = ...
-                IIR_temp(B,A,phase_sin{k},register0_sin{k},register1_sin{k});
+                IIR_temp(B,A,cell2mat(phase_sin(k)),cell2mat(register0_sin(k)),cell2mat(register1_sin(k)));
+
              denom = conv2(amplitude,gaussian_kernel,"same");
              nume_cos= conv2(phase_filter_cos.*amplitude,gaussian_kernel,"same");
              nume_sin= conv2(phase_filter_sin.*amplitude,gaussian_kernel,"same");
-             phase_filter_sin = nume_sin./denom;
-             phase_filter_cos = nume_cos./denom;
-             phase_mag_fil_cos = magPhase*phase_filter_cos;
-             phase_mag_fil_sin = magPhase*phase_filter_sin;
+             phase_filter_sin_1 = nume_sin./denom;
+             phase_filter_cos_1 = nume_cos./denom;
+
+             phase_mag_fil_cos = magPhase*phase_filter_cos_1;
+             phase_mag_fil_sin = magPhase*phase_filter_sin_1;
 
              phase_magnitude = sqrt(phase_mag_fil_sin.^2+phase_mag_fil_cos.^2);
              exp_ph_real = cos(phase_magnitude);
-             exp_ph_x= phase_mag_fil_cos.*sin(phase_magnitude)./phase_magnitude;
-             exp_ph_y= phase_mag_fil_sin.*sin(phase_magnitude)./phase_magnitude;
-             motion_mag_lap_pyramid{k} = exp_ph_real.*current_laplacian_pyramid{k}...
-                 - exp_ph_x.*current_rieszx{k} - exp_ph_y.*current_rieszy{k};
+             exp_ph_x= phase_mag_fil_cos./phase_magnitude.*sin(phase_magnitude);
+             exp_ph_y= phase_mag_fil_sin./phase_magnitude.*sin(phase_magnitude);
+             motion_mag_lap_pyramid{k} = exp_ph_real.*current_laplacian_pyramid_k...
+                 - exp_ph_x.*current_rieszx_k - exp_ph_y.*current_rieszy_k;
         end
         motion_mag_lap_pyramid{number_of_levels+1}=...
             cell2mat(current_laplacian_pyramid(number_of_levels+1));
@@ -66,8 +68,9 @@ function [outres,FrameRate] = phaseAmplify(vidFile, magPhase, fl, fh, fs, outDir
         previous_laplacian_pyramid = current_laplacian_pyramid;
         previous_riesz_x = current_rieszx;
         previous_riesz_y = current_rieszy;
-        m = imshow(motion_mag_frame/256);
-        uiwait(m);
+        m = figure();
+        imshow(motion_mag_frame/256);
+        % uiwait(m);
     end
     quality=90;
     profile = 'Motion JPEG AVI'; 

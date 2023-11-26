@@ -4,7 +4,7 @@ dataDir = '../data/';
 resultsDir = '../results/';
 % mkdir(resultsDir);
 
-inFile = fullfile(dataDir, 'guitar.avi');
+inFile = fullfile(dataDir, 'woman.avi');
 samplingRate = 600;
 loCutoff = 72;
 hiCutoff = 92;
