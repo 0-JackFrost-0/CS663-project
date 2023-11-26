@@ -6,7 +6,7 @@ inputVideo = VideoReader(inputAVIFile);
 
 % Create a VideoWriter object for the output MP4 file
 % outputMP4File = 'ResultsSIGGRAPH2013/output.mp4';
-outputMP4File = './r.mp4';
+outputMP4File = './x.mp4';
 outputVideo = VideoWriter(outputMP4File, 'MPEG-4');
 
 % Set properties of the VideoWriter object
