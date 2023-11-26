@@ -45,16 +45,19 @@ function [outres,FrameRate] = phaseAmplify(vidFile, magPhase, fl, fh, fs, outDir
             [phase_filter_sin,register0_sin{k},register1_sin{k}] = ...
                 IIR_temp(B,A,cell2mat(phase_sin(k)),cell2mat(register0_sin(k)),cell2mat(register1_sin(k)));
 
-             denom = conv2(amplitude,gaussian_kernel,"same");
+             denom = conv2(amplitude,gaussian_kernel,"same")+1e-7;
              nume_cos= conv2(phase_filter_cos.*amplitude,gaussian_kernel,"same");
              nume_sin= conv2(phase_filter_sin.*amplitude,gaussian_kernel,"same");
              phase_filter_sin_1 = nume_sin./denom;
              phase_filter_cos_1 = nume_cos./denom;
+            % Check if there are any NaN values in the array
+            
+
 
              phase_mag_fil_cos = magPhase*phase_filter_cos_1;
              phase_mag_fil_sin = magPhase*phase_filter_sin_1;
 
-             phase_magnitude = sqrt(phase_mag_fil_sin.^2+phase_mag_fil_cos.^2);
+             phase_magnitude = sqrt(phase_mag_fil_sin.^2+phase_mag_fil_cos.^2)+1e-12;
              exp_ph_real = cos(phase_magnitude);
              exp_ph_x= phase_mag_fil_cos./phase_magnitude.*sin(phase_magnitude);
              exp_ph_y= phase_mag_fil_sin./phase_magnitude.*sin(phase_magnitude);

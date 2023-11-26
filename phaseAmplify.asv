@@ -50,6 +50,16 @@ function [outres,FrameRate] = phaseAmplify(vidFile, magPhase, fl, fh, fs, outDir
              nume_sin= conv2(phase_filter_sin.*amplitude,gaussian_kernel,"same");
              phase_filter_sin_1 = nume_sin./denom;
              phase_filter_cos_1 = nume_cos./denom;
+            % Check if there are any NaN values in the array
+            hasNaN = any(isnan(phase_filter_cos_1));
+            
+            % Display the result
+            if hasNaN
+                disp('a');
+                frame_no
+                k
+            end
+
 
              phase_mag_fil_cos = magPhase*phase_filter_cos_1;
              phase_mag_fil_sin = magPhase*phase_filter_sin_1;
@@ -65,10 +75,10 @@ function [outres,FrameRate] = phaseAmplify(vidFile, magPhase, fl, fh, fs, outDir
             cell2mat(current_laplacian_pyramid(number_of_levels+1));
         motion_mag_frame = collapse_laplacian_pyramid(motion_mag_lap_pyramid);
         outres(:,:,:,frame_no)=motion_mag_frame;
-        previous_laplacian_pyramid = current_laplacian_pyramid;
-        previous_riesz_x = current_rieszx;
-        previous_riesz_y = current_rieszy;
-        m = figure();
+        [previous_laplacian_pyramid, previous_riesz_x, previous_riesz_y,number_of_levels] = ...
+        ComputeRieszPyramid(current_frame);
+        % m = figure();
+        % motion_mag_frame
         imshow(motion_mag_frame/256);
         % uiwait(m);
     end
