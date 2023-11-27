@@ -14,7 +14,7 @@ laplacian_p_size= size(laplacian_pyramid,1);
 i=1;
 j=1;
 l=f1*f2;
-while f1>2 && f2>2
+while f1>2 && f2>2 && laplacian_p_size>0
     laplacian_pyrm{i} = reshape(laplacian_pyramid(j:l),[f1,f2]);
     laplacian_p_size = laplacian_p_size - f1*f2;
     i = i+1;

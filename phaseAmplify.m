@@ -1,4 +1,4 @@
-function [outres,FrameRate] = phaseAmplify(vidFile, magPhase, fl, fh, fs, outDir)
+function [outres,FrameRate] = phaseAmplify(vidFile, magPhase, fl, fh, fs, outDir,name)
     ny_freq = fs/2;
     [B,A]= butter(1, [fl/ny_freq, fh/ny_freq], 'bandpass');    
     sigma = 2;
@@ -11,15 +11,15 @@ function [outres,FrameRate] = phaseAmplify(vidFile, magPhase, fl, fh, fs, outDir
     [h, w, ~, nF] = size(vid);
     outres = zeros(h,w,3,nF);
     previous_frame = vid(:, :, :, 1);
-    previous_frame = rgb2hsv(previous_frame);
-    outres(:,:,:,1)= double(vid(:, :, :, 1))/256;
+    previous_frame = rgb2ycbcr(previous_frame);
+    outres(:,:,:,1)= double(vid(:, :, :, 1));
    
     % m = figure();
     % imshow(im2uint8(outres(:, :, :, 1)));
     % uiwait(m);
 
     [previous_laplacian_pyramid, previous_riesz_x, previous_riesz_y,number_of_levels] = ...
-        ComputeRieszPyramid(double(previous_frame(:,:,3)));
+        ComputeRieszPyramid(double(previous_frame(:,:,1))/256);
     for k=1:number_of_levels
         phase_cos{k} = zeros(size(cell2mat(previous_laplacian_pyramid(k))));
         phase_sin{k} = zeros(size(cell2mat(previous_laplacian_pyramid(k))));
@@ -30,9 +30,9 @@ function [outres,FrameRate] = phaseAmplify(vidFile, magPhase, fl, fh, fs, outDir
     end
 
     for frame_no=2:nF
-        current_frame = double(rgb2hsv(vid(:,:,:,frame_no)));
+        current_frame = double(rgb2ycbcr(vid(:,:,:,frame_no)))/256;
         [current_laplacian_pyramid, current_rieszx, current_rieszy,number_of_levels]=...
-            ComputeRieszPyramid(current_frame(:,:,3));
+            ComputeRieszPyramid(current_frame(:,:,1));
         for k = 1:number_of_levels
             current_laplacian_pyramid_k = cell2mat(current_laplacian_pyramid(k));
             current_rieszx_k=cell2mat(current_rieszx(k));
@@ -74,27 +74,29 @@ function [outres,FrameRate] = phaseAmplify(vidFile, magPhase, fl, fh, fs, outDir
             cell2mat(current_laplacian_pyramid(number_of_levels+1));
         motion_mag_frame = collapse_laplacian_pyramid(motion_mag_lap_pyramid);
         
-        hsv_frame = rgb2hsv(vid(:, :, :, frame_no));
-        outres(:,:,1:2,frame_no)=hsv_frame(:,:,1:2);
-        outres(:,:,3,frame_no)=motion_mag_frame;
-        outres(:,:,:,frame_no)= hsv2rgb(outres(:,:,:,frame_no));
+        ycbcr_frame = double(rgb2ycbcr(vid(:, :, :, frame_no)))/256;
+        outres(:,:,2:3,frame_no)=ycbcr_frame(:,:,2:3);
+        outres(:,:,1,frame_no)=motion_mag_frame;
+        outres(:,:,:,frame_no)= ycbcr2rgb(outres(:,:,:,frame_no));
         [previous_laplacian_pyramid, previous_riesz_x, previous_riesz_y,number_of_levels] = ...
-        ComputeRieszPyramid(current_frame(:,:,3));
+        ComputeRieszPyramid(current_frame(:,:,1));
         % m = figure();
         % motion_mag_frame
-        % imshow(motion_mag_frame);
+        % imshow(outres(:,:,:,frame_no))
+        % imshow(double(rgb2ycbcr(vid(:,:,:,frame_no)))/256 );
         % uiwait(m);
     end
     quality=90;
-    profile = 'Motion JPEG AVI';
-    vw = VideoWriter("./output.avi",profile);
-    if (strcmp(profile, 'Motion JPEG AVI'))
+    profile = 'MPEG-4';
+    outfile = fullfile(outDir,strcat(name,".mp4"));
+    vw = VideoWriter(outfile,profile);
+    if (strcmp(profile, 'MPEG-4'))
         vw.Quality = quality;
     end
-    
+    name
     vw.FrameRate =  FrameRate;
     vw.open;
-    vw.writeVideo(outres(:, :, :, 1))
+    % vw.writeVideo(outres(:, :, :, 1))
     vw.writeVideo(im2uint8(outres(:, :, :, 2:nF)));
     vw.close;
 end

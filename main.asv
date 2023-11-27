@@ -1,0 +1,21 @@
+clear;
+dataDir = '../data/';
+
+resultsDir = '../results/';
+% mkdir(resultsDir);
+all_files=["baby","camera","crane","crane_crop","eye","face","moon",...
+    "shuttle","stomp","throat","trees","woman"];
+
+samplingRate = 600;
+loCutoff = 72;
+hiCutoff = 92;
+alpha = 25;
+
+for k = 1:size(all_files,2)
+    infile = inFile = fullfile(dataDir, all_f +'.avi');
+end
+inFile = fullfile(dataDir, 'camera.avi');
+
+
+[res,framerate]=phaseAmplify(inFile, alpha, loCutoff, hiCutoff, samplingRate, resultsDir);
+% avi_to_mp4();
