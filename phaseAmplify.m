@@ -2,7 +2,7 @@ function [outres,FrameRate] = phaseAmplify(vidFile, magPhase, fl, fh, fs, outDir
     ny_freq = fs/2;
     [B,A]= butter(1, [fl/ny_freq, fh/ny_freq], 'bandpass');    
     sigma = 2;
-    gaussian_kernel = fspecial('gaussian', ceil(3), sigma);
+    gaussian_kernel = fspecial('gaussian', ceil(6), sigma);
 
     vr = VideoReader(vidFile);
     [~, writeTag, ~] = fileparts(vidFile);
@@ -12,8 +12,12 @@ function [outres,FrameRate] = phaseAmplify(vidFile, magPhase, fl, fh, fs, outDir
     outres = zeros(h,w,3,nF);
     previous_frame = vid(:, :, :, 1);
     previous_frame = rgb2hsv(previous_frame);
-    outres(:,:,:,1)= previous_frame(:, :, :);
-    size(outres(:,:,:,1))
+    outres(:,:,:,1)= double(vid(:, :, :, 1))/256;
+   
+    % m = figure();
+    % imshow(im2uint8(outres(:, :, :, 1)));
+    % uiwait(m);
+
     [previous_laplacian_pyramid, previous_riesz_x, previous_riesz_y,number_of_levels] = ...
         ComputeRieszPyramid(double(previous_frame(:,:,3)));
     for k=1:number_of_levels
@@ -78,18 +82,19 @@ function [outres,FrameRate] = phaseAmplify(vidFile, magPhase, fl, fh, fs, outDir
         ComputeRieszPyramid(current_frame(:,:,3));
         % m = figure();
         % motion_mag_frame
-        imshow(motion_mag_frame);
+        % imshow(motion_mag_frame);
         % uiwait(m);
     end
     quality=90;
-    profile = 'Motion JPEG AVI'; 
-    vw = VideoWriter("./p.avi",profile);
+    profile = 'Motion JPEG AVI';
+    vw = VideoWriter("./output.avi",profile);
     if (strcmp(profile, 'Motion JPEG AVI'))
         vw.Quality = quality;
     end
     
     vw.FrameRate =  FrameRate;
-    vw.open;    
-    vw.writeVideo(im2uint8(outres));
+    vw.open;
+    vw.writeVideo(outres(:, :, :, 1))
+    vw.writeVideo(im2uint8(outres(:, :, :, 2:nF)));
     vw.close;
 end

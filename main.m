@@ -1,5 +1,5 @@
 clear;
-dataDir = '../data/';
+dataDir = '../Data/';
 
 resultsDir = '../results/';
 % mkdir(resultsDir);
@@ -11,3 +11,4 @@ hiCutoff = 92;
 alpha = 25;
 
 [res,framerate]=phaseAmplify(inFile, alpha, loCutoff, hiCutoff, samplingRate, resultsDir);
+avi_to_mp4();
